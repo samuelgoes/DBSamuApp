@@ -8,8 +8,11 @@
     <string name="est_on">Conectado</string>
     <string name="est_off">Desconectado</string>
     <string name="btn_leer">Leer Epubs</string>
+    
+    <string name="des_imagenTomo">Imagen del tomo de un libro</string>
+    <string name="des_imagenPortada">Imagen de la portada del libro</string>
+    
     <string name="title_activity_lista_epubs">Lista de ePubs</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_mostrar_cover">Portada</string>
 
 </resources>

@@ -1,13 +1,11 @@
 package com.samuelgoes.dbsamuapp;
 
-import jarroba.ramon.listado.Lista_adaptador;
-
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import nl.siegmann.epublib.domain.Book;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -17,22 +15,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.dropbox.client2.DropboxAPI;
-import com.samuelgoes.dbdropbox.ObtenerListaEpubs;
-import com.samuelgoes.dbsamuapp.form.EntradaForm;
-import com.samuelgoes.dbsamuapp.form.ListaEpubForm;
+import com.samuelgoes.dbsamuapp.almacen.AlmacenEbook;
+import com.samuelgoes.dbsamuapp.form.LibrosAdapter;
 
-public class ListaEpubs extends Activity {
+public class ListaEpubs extends Activity implements OnItemClickListener{
 
 	private final String TAG = "ListaEpubs";
 	
-	private DropboxAPI<?> _api;
-	private ListView lista; 
+	private ArrayList<Book> libros;
+	private ListView lvLibros;
+	private ArrayAdapter<Book> adapter;
 	
 	
 	@Override
@@ -42,71 +37,33 @@ public class ListaEpubs extends Activity {
 		setContentView(R.layout.activity_lista_epubs);
 		setupActionBar();
 		
-		ArrayList<EntradaForm> datos = new ArrayList<EntradaForm>();
-		
-		ArrayList<Book> libros = obtenerLibros();
-		for(Book libro : libros){
-			datos.add(new EntradaForm(R.drawable.book, libro.getTitle(), "Samu"));
-		}
-		
-		
-        lista = (ListView) findViewById(R.id.ListView_listado);
-        lista.setAdapter(new Lista_adaptador(this, R.layout.entrada, datos){
-			@Override
-			public void onEntrada(Object entrada, View view) {
-		        if (entrada != null) {
-		            TextView texto_superior_entrada = (TextView) view.findViewById(R.id.textView_superior); 
-		            if (texto_superior_entrada != null) 
-		            	texto_superior_entrada.setText(((EntradaForm) entrada).getTitulo()); 
+		//Obtenemos los datos de los libros
+		libros = this.obtenerLibros();
 
-		            TextView texto_inferior_entrada = (TextView) view.findViewById(R.id.textView_inferior); 
-		            if (texto_inferior_entrada != null)
-		            	texto_inferior_entrada.setText(((EntradaForm) entrada).getAutor()); 
-
-		            ImageView imagen_entrada = (ImageView) view.findViewById(R.id.imageView_imagen); 
-		            if (imagen_entrada != null)
-		            	imagen_entrada.setImageResource(((EntradaForm) entrada).getIdImagen());
-		        }
-			}
-		});
-
-        lista.setOnItemClickListener(new OnItemClickListener() { 
-			@Override
-			public void onItemClick(AdapterView<?> pariente, View view, int posicion, long id) {
-				EntradaForm elegido = (EntradaForm) pariente.getItemAtPosition(posicion); 
-
-                CharSequence texto = "Seleccionado: " + elegido.getTitulo();
-                Toast toast = Toast.makeText(ListaEpubs.this, texto, Toast.LENGTH_LONG);
-                toast.show();
-			}
-        });
+		// Creamos el adaptador. Almacena y maqueta los datos mostrados en el ListView
+		adapter = new LibrosAdapter(this, libros);
 		
-		
-		
-//		LinearLayout rll = (LinearLayout) findViewById(R.id.rll);
-//		
-//		ArrayList<Book> lista = obtenerLibros();
-//		
-//		for(Book libro : lista){
-//			Button tv = new Button(this);
-//			tv.setOnClickListener(new OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					
-//				}
-//			});
-//			RelativeLayout rl = new RelativeLayout(this);
-//			
-//	        tv.setText(libro.getTitle());
-//	        tv.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-//	        
-//	        rl.addView(tv);
-//	        rll.addView(rl);
-//		}
-		
+		// Recuperamos el ListView
+		lvLibros = (ListView) findViewById(R.id.lvItems);
+		lvLibros.setAdapter(adapter);							// Asignamos el Adapter al ListView. El adapter hace de plantilla
+		lvLibros.setOnItemClickListener(this);					// Asignamos el Listener al ListView para cuando pulsamos sobre uno de los items
 	}
 
-
+	
+	@Override
+	public void onItemClick(AdapterView<?> adapter, View view, int position, long ID) {
+		Intent intent;
+		
+		Log.i(TAG, libros.get(position).getTitle());
+    	
+    	intent = new Intent(this, MostrarCover.class);
+//    	intent.putExtra("libro", libros.get(position));
+    	intent.putExtra("posicion", position);
+    	
+        startActivity(intent);
+	}
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -125,34 +82,13 @@ public class ListaEpubs extends Activity {
 		
 		return super.onOptionsItemSelected(item);
 	}
-
-	
-	public void mostrarCover(){
-		Log.i(TAG, "MostrarCover");
-	}
 	
 	
 	
 	//********************
 	//*	METODOS PRIVADOS *
 	//********************
-	
-//    private void addChild(Book libro){
-//        LayoutInflater inflater = LayoutInflater.from(this);
-//        int id = R.layout.activity_lista_epubs;
-//         
-//        RelativeLayout relativeLayout = (RelativeLayout) inflater.inflate(id, null, false);
-// 
-//        TextView textView = (TextView) relativeLayout.findViewById(R.id.buttonsLayout);
-//        textView.setText(libro.getTitle());
-//         
-//        layout.addView(relativeLayout);     
-//         
-//    }
-	
-    
-    
-	
+
 	
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -166,23 +102,21 @@ public class ListaEpubs extends Activity {
 	
 	
 	
+//	@SuppressWarnings("unchecked")
+//	private ArrayList<Libro> obtenerLibros(){
+//		ArrayList<Libro> lista;
+//		Intent intent;
+//		
+//		intent = getIntent();
+//		lista = (ArrayList<Libro>) intent.getSerializableExtra("listaLibros");
+//		
+//		return lista;
+//	}
+	
 	private ArrayList<Book> obtenerLibros(){
 		ArrayList<Book> lista;
 		
-		lista = null;
-		//_api = ((ListaEpubForm)savedInstanceState.getSerializable("DropboxAPI")).getApi();
-		_api = ListaEpubForm.getInstancia().getApi();
-		
-		try{
-			ObtenerListaEpubs ole = new ObtenerListaEpubs(_api);
-			ole.execute();
-			lista = ole.get();
-		}catch(InterruptedException ie){
-		}catch(ExecutionException ee){}
-		
-//		for(Book libro : lista){
-//			this.addChild(libro);
-//		}
+		lista = AlmacenEbook.getInstancia().getLibros();
 		
 		return lista;
 	}

@@ -20,23 +20,22 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="com.dropbox.client2.android.AuthActivity"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTask" >
             <intent-filter>
                 <data android:scheme="db-1k2se2ge619e518" />
-
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="com.samuelgoes.dbsamuapp.ListaEpubs"
             android:label="@string/title_activity_lista_epubs"
@@ -45,6 +44,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.samuelgoes.dbsamuapp.EpubActivity" />
         </activity>
+        
         <activity
             android:name="com.samuelgoes.dbsamuapp.MostrarCover"
             android:label="@string/title_activity_mostrar_cover"
@@ -53,6 +53,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.samuelgoes.dbsamuapp.ListaEpubs" />
         </activity>
+        
     </application>
 
 </manifest>

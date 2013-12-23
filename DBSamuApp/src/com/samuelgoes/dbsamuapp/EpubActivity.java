@@ -1,5 +1,9 @@
 package com.samuelgoes.dbsamuapp;
 
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+import nl.siegmann.epublib.domain.Book;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,7 +26,9 @@ import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
 import com.dropbox.client2.session.TokenPair;
-import com.samuelgoes.dbsamuapp.form.ListaEpubForm;
+import com.samuelgoes.dbdropbox.ObtenerListaEpubs;
+import com.samuelgoes.dbsamuapp.almacen.AlmacenEbook;
+import com.samuelgoes.dbsamuapp.form.Libro;
 
 public class EpubActivity extends Activity {
 
@@ -31,14 +37,13 @@ public class EpubActivity extends Activity {
 	//Elementos de la pantalla
 	private Button _conectar, _leer;
 	private TextView _estado;
-	//private TextView _etiqueta;
 	
 	//Elementos Dropbox
-	private DropboxAPI<AndroidAuthSession> _api;
-	private boolean isConnected;
-	private final static AccessType ACCESS_TYPE = AccessType.DROPBOX;
 	private final String APP_KEY = "1k2se2ge619e518";
 	private final String APP_SECRET = "zbep3hhasokjmh9";
+	private final static AccessType ACCESS_TYPE = AccessType.DROPBOX;
+	private DropboxAPI<AndroidAuthSession> _api;
+	private boolean isConnected;
 	
 	//Elementos Constantes
     final static private String ACCOUNT_PREFS_NAME = "prefs";
@@ -49,10 +54,10 @@ public class EpubActivity extends Activity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    	AndroidAuthSession sesion;
+    	
+    	super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_epub);
-        
-        AndroidAuthSession sesion;
         
         sesion = buildSession();
         _api = new DropboxAPI<AndroidAuthSession>(sesion);
@@ -72,20 +77,10 @@ public class EpubActivity extends Activity {
 		});
         
         
-        //_etiqueta= (TextView) findViewById(R.id.textView1);
         _estado = (TextView) findViewById(R.id.textView2);
-        
         _leer = (Button)findViewById(R.id.btn_leer);
-//        _leer.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				ObtenerListaEpubs ole = new ObtenerListaEpubs(_api);
-//				ole.execute();
-//			}
-//		});
         
         this.checkAppKeySetup();
-        
     }
 
 
@@ -99,10 +94,10 @@ public class EpubActivity extends Activity {
     
     @Override
     protected void onResume() {
-        super.onResume();
-        
-        TokenPair tokens;
+    	TokenPair tokens;
         AndroidAuthSession sesion;
+    	
+    	super.onResume();
         
         sesion = _api.getSession();
 
@@ -124,12 +119,35 @@ public class EpubActivity extends Activity {
     
     
     public void mostrarEpubs(View view) {
+    	
+    	ArrayList<Book> lista;
+    	//ArrayList<Libro> listaLibro;
     	Intent intent;
-    	ListaEpubForm form;
+    	ObtenerListaEpubs ole;
+    	AlmacenEbook ae;
+    	
+    	lista = null;
+    	
+    	try{
+    		ole = new ObtenerListaEpubs(_api);
+    		ole.execute();
+    		lista = ole.get();
+    	}
+    	catch(ExecutionException ee){
+    		Log.e(TAG, "Error al buscar los libros");
+    	}
+    	catch(InterruptedException ie){
+    		Log.e(TAG, "Error al buscar los libros");
+    	}
+    	
+    	ae = AlmacenEbook.getInstancia();
+    	ae.setLibros(lista);
+    	
+    	//listaLibro = this.convertirListas(lista);
     	
     	intent = new Intent(this, ListaEpubs.class);
-    	form = ListaEpubForm.getInstancia();
-    	form.setApi(_api);
+    	//intent.putExtra("listaLibros", listaLibro);
+    	
         startActivity(intent);
     }
     
@@ -137,6 +155,25 @@ public class EpubActivity extends Activity {
     //*******************************
     //*		METODOS PRIVADOS		*
     //*******************************
+    
+    private ArrayList<Libro> convertirListas (ArrayList<Book> lista){
+    	
+    	ArrayList<Libro> nuevaLista;
+    	Libro libro;
+    	
+    	nuevaLista = new ArrayList<Libro>();
+    	
+    	for(Book b : lista){
+    		libro = new Libro();
+    		libro.setTitulo(b.getTitle());
+    		libro.setAutor(b.getMetadata().getAuthors().get(0).getLastname());
+    		libro.setUrlImg(b.getCoverImage().getHref());
+    		
+    		nuevaLista.add(libro);
+    	}
+    	
+    	return nuevaLista;
+    }
     
     
     
@@ -150,7 +187,6 @@ public class EpubActivity extends Activity {
     	test = new Intent(Intent.ACTION_VIEW);
     	uri = "db-" + APP_KEY + "://" + AuthActivity.AUTH_VERSION + "/test";
     	test.setData(Uri.parse(uri));
-    	
     	
     	if (0 == pm.queryIntentActivities(test, 0).size()) {
             showToast("Manifiesto incorrecto");
