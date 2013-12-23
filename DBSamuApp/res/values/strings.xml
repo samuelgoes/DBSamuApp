@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">DBSamuApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="btn_conectar">Conectar</string>
+    <string name="lbl_estado">Estado: </string>
+    <string name="est_on">Conectado</string>
+    <string name="est_off">Desconectado</string>
+    <string name="btn_leer">Leer Epubs</string>
+    <string name="title_activity_lista_epubs">Lista de ePubs</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_mostrar_cover">Portada</string>
+
+</resources>
