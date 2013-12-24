@@ -35,6 +35,5 @@
         android:layout_toRightOf="@+id/imgTomoLibro"
         android:text="Autor" />
 
-    
-
+   
 </RelativeLayout>

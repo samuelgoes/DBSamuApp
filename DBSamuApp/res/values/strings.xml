@@ -15,4 +15,11 @@
     <string name="title_activity_lista_epubs">Lista de ePubs</string>
     <string name="title_activity_mostrar_cover">Portada</string>
 
+    <string-array name="valores_spinner">
+        <item > Por nombre </item>
+        <item > Por fecha </item>
+    </string-array>
+    
+    <string name="lbl_orden">Ordenación</string>
+    
 </resources>
