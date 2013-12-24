@@ -28,14 +28,13 @@ import com.dropbox.client2.session.Session.AccessType;
 import com.dropbox.client2.session.TokenPair;
 import com.samuelgoes.dbdropbox.ObtenerListaEpubs;
 import com.samuelgoes.dbsamuapp.almacen.AlmacenEbook;
-import com.samuelgoes.dbsamuapp.form.Libro;
 
 public class EpubActivity extends Activity {
 
 	private static final String TAG = "EpubActivity";
 	
 	//Elementos de la pantalla
-	private Button _conectar, _leer;
+	private Button _conectar;
 	private TextView _estado;
 	
 	//Elementos Dropbox
@@ -78,7 +77,6 @@ public class EpubActivity extends Activity {
         
         
         _estado = (TextView) findViewById(R.id.textView2);
-        _leer = (Button)findViewById(R.id.btn_leer);
         
         this.checkAppKeySetup();
     }
@@ -121,7 +119,6 @@ public class EpubActivity extends Activity {
     public void mostrarEpubs(View view) {
     	
     	ArrayList<Book> lista;
-    	//ArrayList<Libro> listaLibro;
     	Intent intent;
     	ObtenerListaEpubs ole;
     	AlmacenEbook ae;
@@ -143,10 +140,7 @@ public class EpubActivity extends Activity {
     	ae = AlmacenEbook.getInstancia();
     	ae.setLibros(lista);
     	
-    	//listaLibro = this.convertirListas(lista);
-    	
     	intent = new Intent(this, ListaEpubs.class);
-    	//intent.putExtra("listaLibros", listaLibro);
     	
         startActivity(intent);
     }
@@ -155,26 +149,6 @@ public class EpubActivity extends Activity {
     //*******************************
     //*		METODOS PRIVADOS		*
     //*******************************
-    
-    private ArrayList<Libro> convertirListas (ArrayList<Book> lista){
-    	
-    	ArrayList<Libro> nuevaLista;
-    	Libro libro;
-    	
-    	nuevaLista = new ArrayList<Libro>();
-    	
-    	for(Book b : lista){
-    		libro = new Libro();
-    		libro.setTitulo(b.getTitle());
-    		libro.setAutor(b.getMetadata().getAuthors().get(0).getLastname());
-    		libro.setUrlImg(b.getCoverImage().getHref());
-    		
-    		nuevaLista.add(libro);
-    	}
-    	
-    	return nuevaLista;
-    }
-    
     
     
     private void checkAppKeySetup(){
@@ -207,13 +181,6 @@ public class EpubActivity extends Activity {
     }
     
     
-//    private void logOut() {
-//        _api.getSession().unlink();
-//        clearKeys();
-//        setLoggedIn(false);
-//    }
-    
-    
     private void showToast(String msg) {
         Toast error = Toast.makeText(this, msg, Toast.LENGTH_LONG);
         error.show();
@@ -243,13 +210,7 @@ public class EpubActivity extends Activity {
         edit.putString(ACCESS_SECRET_NAME, secret);
         edit.commit();
     }
-
-//    private void clearKeys() {
-//        SharedPreferences prefs = getSharedPreferences(ACCOUNT_PREFS_NAME, 0);
-//        Editor edit = prefs.edit();
-//        edit.clear();
-//        edit.commit();
-//    }
+    
 
     private AndroidAuthSession buildSession() {
         AppKeyPair appKeyPair = new AppKeyPair(APP_KEY, APP_SECRET);

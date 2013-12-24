@@ -18,7 +18,6 @@ public class ObtenerListaEpubs extends AsyncTask<Void, Void, ArrayList<Book>> {
 	private final static String TAG = "ObtenerListaEpubs";
 	
 	private DropboxAPI<?> _api;
-	private ArrayList<Book> _lista;
 	
 	public ObtenerListaEpubs(DropboxAPI<?> api){
 		_api = api;
@@ -62,8 +61,6 @@ public class ObtenerListaEpubs extends AsyncTask<Void, Void, ArrayList<Book>> {
 	
 	
     @Override
-    protected void onPostExecute(ArrayList<Book> result) {
-    	_lista = result;
-    }
+    protected void onPostExecute(ArrayList<Book> result) {}
 	
 }
